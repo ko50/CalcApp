@@ -4,23 +4,20 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    var formula: String = ""
-    var result:  String = ""
+    var formula: String
+    var result: String
+
+    init {
+        formula = "0"
+        result = "0"
+    }
 
     private fun constructingArrayOfComponentsByFormula(): Array<String> {
         val arrayOfComponents: Array<String> = arrayOf()
         for(s in formula) {
             remakeFormulaComponent(s, arrayOfComponents.last())
-        }
-
-        arrayOfComponents.forEach {
-            when {
-                it.isDoubleStr() -> it.toDouble()
-                it.isIntStr()    -> it.toInt()
-            }
         }
 
         return arrayOfComponents
@@ -29,11 +26,10 @@ class MainActivity : AppCompatActivity() {
     private fun remakeFormulaComponent(s: Char, beforeComponent: String): String {
         return when {
             s.isIntChar() || s == '.' ||
-                    beforeComponent.isIntStr() -> beforeComponent + s
+                    beforeComponent.isNumStr() -> beforeComponent + s
             else                               -> s.toString()
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,14 +43,14 @@ class MainActivity : AppCompatActivity() {
             inputtedStr == "="     -> executeFormula()
             inputtedStr == "."     -> addPoint()
             inputtedStr == "0"     -> addZero()
-            inputtedStr.isIntStr() -> addNumber(inputtedStr)
+            inputtedStr.isNumStr() -> addNumber(inputtedStr)
             else                   -> addSymbol(inputtedStr)
         }
     }
 
     private fun allClear() {
-        formula = ""
-        result  = ""
+        formula = "0"
+        result  = "0"
         val formulaArea = findViewById<TextView>(R.id.formula)
         formulaArea.text = formula
         val resultArea = findViewById<TextView>(R.id.result)
@@ -63,18 +59,52 @@ class MainActivity : AppCompatActivity() {
 
     private fun executeFormula() {
         val readyToCalcComponents: Array<String> = constructingArrayOfComponentsByFormula()
-        for(component in readyToCalcComponents) {
+        var frontNum: Double? = null
+        var symbol:   String? = null
+        var rearNum:  Double? = null
 
+        for(component in readyToCalcComponents) {
+            when {
+                component.isNumStr() -> when {
+                    frontNum == null -> frontNum = component.toDouble()
+                    rearNum  == null -> rearNum  = component.toDouble()
+                }
+                else                 -> symbol = component
+            }
+
+            if (frontNum == null || symbol == null || rearNum == null) continue
+
+            frontNum = when (symbol) {
+                "÷" -> frontNum / rearNum
+                "×" -> frontNum * rearNum
+                "-" -> frontNum - rearNum
+                "+" -> frontNum + rearNum
+
+                // ここのnullはsymbolをクラス化してなんやかんやすれば取り除けたり
+                else -> null
+            }
         }
+
+        val resultArea = findViewById<TextView>(R.id.result)
+        result = frontNum!!.toString()
+        resultArea.text = result
+
+        val formulaArea = findViewById<TextView>(R.id.formula)
+        formula = "0"
+        formulaArea.text = formula
     }
 
     private fun addPoint() {
+        if(!formula.last().isIntChar()) return
+
         val formulaArea = findViewById<TextView>(R.id.formula)
         formula += "."
         formulaArea.text = formula
     }
 
     private fun addZero() {
+        if(formula == "0") return
+
         val formulaArea = findViewById<TextView>(R.id.formula)
         formula += "0"
         formulaArea.text = formula
@@ -87,16 +117,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addSymbol(inputtedSymbol: String) {
+        if(!formula.last().isIntChar()) return
+
         val formulaArea = findViewById<TextView>(R.id.formula)
-        val isThePreviousCharIsInt: Boolean = (formula.last().isIntChar())
-        if(isThePreviousCharIsInt) {
-            formula += inputtedSymbol
-        }
+        formula += inputtedSymbol
         formulaArea.text = formula
     }
 }
 
 fun Char.isIntChar(): Boolean = this.toString().toIntOrNull() != null
 
-fun String.isIntStr(): Boolean = this.toIntOrNull() != null
-fun String.isDoubleStr(): Boolean = this.toDoubleOrNull() != null && this.contains('.')
+fun String.isNumStr(): Boolean = this.toIntOrNull() != null ||
+        (this.toDoubleOrNull() != null && this.contains('.'))
