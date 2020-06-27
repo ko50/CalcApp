@@ -15,9 +15,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun constructingArrayOfComponentsByFormula(): Array<String> {
-        val arrayOfComponents: Array<String> = arrayOf()
+        val arrayOfComponents: Array<String> = arrayOf("")
         for(s in formula) {
             remakeFormulaComponent(s, arrayOfComponents.last())
+            // arrayOfComponentsに対して関数の変更を適用させ忘れてますよ～～～＾＾＾＾array.add()とかしてどうぞ
         }
 
         return arrayOfComponents
@@ -37,14 +38,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClick(view: android.view.View) {
-        val inputtedStr: String = findViewById<Button>(view.id).text.toString()
-        when {
-            inputtedStr == "AC"    -> allClear()
-            inputtedStr == "="     -> executeFormula()
-            inputtedStr == "."     -> addPoint()
-            inputtedStr == "0"     -> addZero()
-            inputtedStr.isNumStr() -> addNumber(inputtedStr)
-            else                   -> addSymbol(inputtedStr)
+        when(val inputtedStr: String = findViewById<Button>(view.id).text.toString()) {
+            "AC" -> allClear() // 条件式が間違っている可能性
+            "="  -> executeFormula()
+            "."  -> addPoint()
+            "0"  -> addZero()
+            else -> {
+                if(inputtedStr.isNumStr()) {
+                    addNumber(inputtedStr)
+                } else {
+                    addSymbol(inputtedStr)
+                }
+            }
         }
     }
 
@@ -86,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val resultArea = findViewById<TextView>(R.id.result)
-        result = frontNum!!.toString()
+        result = frontNum.toString() // nullチェックのお時間ですわよ！
         resultArea.text = result
 
         val formulaArea = findViewById<TextView>(R.id.formula)
@@ -112,7 +117,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun addNumber(inputtedNum: String) {
         val formulaArea = findViewById<TextView>(R.id.formula)
-        formula += inputtedNum
+        if(formula == "0") formula = inputtedNum
+        else               formula += inputtedNum
         formulaArea.text = formula
     }
 

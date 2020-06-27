@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CalcApp</string>
-    <string name="formula">0</string>
-    <string name="result">0</string>
+    <string name="formula"><u>0</u></string>
+    <string name="result"><u>0</u></string>
     <string name="button_zero">0</string>
     <string name="button_one">1</string>
     <string name="button_two">2</string>
