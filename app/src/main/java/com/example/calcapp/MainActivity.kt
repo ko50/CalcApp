@@ -14,22 +14,22 @@ class MainActivity : AppCompatActivity() {
         result = "0"
     }
 
-    private fun constructingArrayOfComponentsByFormula(): Array<String> {
-        val arrayOfComponents: Array<String> = arrayOf("")
+    private fun remakeFormula(): Array<String> {
+        var sortedFormulaElements: Array<String> = arrayOf("")
+        println(formula)
         for(s in formula) {
-            remakeFormulaComponent(s, arrayOfComponents.last())
-            // arrayOfComponentsに対して関数の変更を適用させ忘れてますよ～～～＾＾＾＾array.add()とかしてどうぞ
+            val before: String = sortedFormulaElements.last() // OrNull() ?: continue
+
+            when {
+                (s.isIntChar() || s == '.') &&
+                        before.isNumStr() -> sortedFormulaElements[sortedFormulaElements.lastIndex] = before + s
+                else                      -> sortedFormulaElements += s.toString()
+            }
         }
 
-        return arrayOfComponents
-    }
+        sortedFormulaElements.forEach { println("$it \n") }
 
-    private fun remakeFormulaComponent(s: Char, beforeComponent: String): String {
-        return when {
-            s.isIntChar() || s == '.' ||
-                    beforeComponent.isNumStr() -> beforeComponent + s
-            else                               -> s.toString()
-        }
+        return sortedFormulaElements.copyOfRange(1, sortedFormulaElements.lastIndex+1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +38,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClick(view: android.view.View) {
-        when(val inputtedStr: String = findViewById<Button>(view.id).text.toString()) {
-            "AC" -> allClear() // 条件式が間違っている可能性
+        val inputtedStr: String = findViewById<Button>(view.id).text.toString()
+        println(inputtedStr)
+        when(inputtedStr) {
+            "AC" -> allClear()
             "="  -> executeFormula()
             "."  -> addPoint()
             "0"  -> addZero()
@@ -54,44 +56,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun allClear() {
-        formula = "0"
-        result  = "0"
         val formulaArea = findViewById<TextView>(R.id.formula)
+        formula = "0"
         formulaArea.text = formula
         val resultArea = findViewById<TextView>(R.id.result)
+        result = "0"
         resultArea.text = result
     }
 
     private fun executeFormula() {
-        val readyToCalcComponents: Array<String> = constructingArrayOfComponentsByFormula()
-        var frontNum: Double? = null
-        var symbol:   String? = null
-        var rearNum:  Double? = null
+        val readyToCalcComponents: Array<String> = remakeFormula()
+        readyToCalcComponents.forEach { println("$it \n") }
+        println("first comp: ${readyToCalcComponents.first()}")
+        println("size: ${readyToCalcComponents.size}")
 
-        for(component in readyToCalcComponents) {
-            when {
-                component.isNumStr() -> when {
-                    frontNum == null -> frontNum = component.toDouble()
-                    rearNum  == null -> rearNum  = component.toDouble()
-                }
-                else                 -> symbol = component
-            }
+        if(!readyToCalcComponents.last().isNumStr()) return // ただreturnするんじゃなくてエラーを表示するようにする
+        println(readyToCalcComponents.last())
 
-            if (frontNum == null || symbol == null || rearNum == null) continue
+        var frontNum: Double = readyToCalcComponents[0].toDouble()
+        var symbol:   String
+        var rearNum:  Double
 
-            frontNum = when (symbol) {
-                "÷" -> frontNum / rearNum
-                "×" -> frontNum * rearNum
-                "-" -> frontNum - rearNum
-                "+" -> frontNum + rearNum
+        // 最後が記号で終わる式を弾かないとindex out of rangeが起きて世界が滅ぶ
+        for(i in 0..readyToCalcComponents.size-2 step 2) {
+            symbol   = readyToCalcComponents[i + 1]
+            rearNum  = readyToCalcComponents[i + 2].toDouble()
 
-                // ここのnullはsymbolをクラス化してなんやかんやすれば取り除けたり
-                else -> null
+            println("front: $frontNum sign: $symbol rear: $rearNum")
+
+            when(symbol) {
+                "÷" -> frontNum /= rearNum
+                "×" -> frontNum *= rearNum
+                "-" -> frontNum -= rearNum
+                "+" -> frontNum += rearNum
             }
         }
 
         val resultArea = findViewById<TextView>(R.id.result)
-        result = frontNum.toString() // nullチェックのお時間ですわよ！
+        result = frontNum.toString()
         resultArea.text = result
 
         val formulaArea = findViewById<TextView>(R.id.formula)
@@ -134,4 +136,4 @@ class MainActivity : AppCompatActivity() {
 fun Char.isIntChar(): Boolean = this.toString().toIntOrNull() != null
 
 fun String.isNumStr(): Boolean = this.toIntOrNull() != null ||
-        (this.toDoubleOrNull() != null && this.contains('.'))
+        this.toDoubleOrNull() != null

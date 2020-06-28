@@ -140,23 +140,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/formula"
-        android:layout_width="336dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginBottom="32dp"
-        android:ems="10"
-        android:text="@string/formula"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/button_clear"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/button_one"
         android:layout_width="70dp"
@@ -230,25 +213,44 @@
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
         android:layout_marginBottom="24dp"
+        android:onClick="onClick"
         android:text="@string/button_clear"
         app:layout_constraintBottom_toTopOf="@+id/button_divide3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/result" />
 
-    <TextView
+    <EditText
+        android:id="@+id/formula"
+        android:layout_width="336dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="24dp"
+        android:ems="10"
+        android:enabled="false"
+        android:inputType="textPersonName"
+        android:text="@string/formula"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/result"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.448"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
         android:id="@+id/result"
         android:layout_width="242dp"
         android:layout_height="70dp"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
-        android:layout_marginTop="32dp"
         android:layout_marginBottom="24dp"
         android:ems="10"
+        android:enabled="false"
+        android:inputType="textPersonName"
+        android:onClick="onClick"
         android:text="@string/result"
-        android:textSize="36sp"
+        android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/button_eight"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/formula" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
