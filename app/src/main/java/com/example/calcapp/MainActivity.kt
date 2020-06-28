@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         when(inputtedStr) {
             "AC" -> allClear()
             "="  -> executeFormula()
+            "|←" -> backSpace()
             "."  -> addPoint()
             "0"  -> addZero()
             else -> {
@@ -59,9 +60,6 @@ class MainActivity : AppCompatActivity() {
         val formulaArea = findViewById<TextView>(R.id.formula)
         formula = "0"
         formulaArea.text = formula
-        val resultArea = findViewById<TextView>(R.id.result)
-        result = "0"
-        resultArea.text = result
     }
 
     private fun executeFormula() {
@@ -92,12 +90,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val resultArea = findViewById<TextView>(R.id.result)
-        result = frontNum.toString()
-        resultArea.text = result
+        result = frontNum.toString().removeSuffix(".0")
 
         val formulaArea = findViewById<TextView>(R.id.formula)
-        formula = "0"
+        formula = result
+        formulaArea.text = formula
+    }
+
+    private fun backSpace() {
+        if(formula == "0") return
+
+        formula = when(val last = formula.lastIndex) {
+            0    -> "0"
+            else -> formula.removeSuffix(formula.last().toString())
+        }
+
+        val formulaArea = findViewById<TextView>(R.id.formula)
         formulaArea.text = formula
     }
 

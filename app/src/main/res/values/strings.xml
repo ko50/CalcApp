@@ -18,5 +18,7 @@
     <string name="button_minus">-</string>
     <string name="button_multi">×</string>
     <string name="button_divide">÷</string>
-    <string name="button_clear">AC</string>
+    <string name="button_all_clear">AC</string>
+    <string name="button_back_space">|←</string>
+    <string name="error">waiting calculation</string>
 </resources>
