@@ -1,17 +1,25 @@
 package com.example.calcapp
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.graphics.Color
 
 class MainActivity : AppCompatActivity() {
-    var formula: String
-    var result: String
+    private var formula: String
+    private var result: String
 
     init {
         formula = "0"
         result = "0"
+    }
+
+    private fun showError(errorMessage: String) {
+        val errorArea = findViewById<TextView>(R.id.error)
+        errorArea.text = errorMessage
+        errorArea.setTextColor(Color.RED)
     }
 
     private fun remakeFormula(): Array<String> {
@@ -50,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                 if(inputtedStr.isNumStr()) {
                     addNumber(inputtedStr)
                 } else {
-                    addSymbol(inputtedStr)
+                    addSign(inputtedStr)
                 }
             }
         }
@@ -62,27 +70,30 @@ class MainActivity : AppCompatActivity() {
         formulaArea.text = formula
     }
 
+    @SuppressLint("SetTextI18n")
     private fun executeFormula() {
         val readyToCalcComponents: Array<String> = remakeFormula()
         readyToCalcComponents.forEach { println("$it \n") }
         println("first comp: ${readyToCalcComponents.first()}")
         println("size: ${readyToCalcComponents.size}")
 
-        if(!readyToCalcComponents.last().isNumStr()) return // ただreturnするんじゃなくてエラーを表示するようにする
+        if(!readyToCalcComponents.last().isNumStr()) {
+            showError("Cannot Execute Formula That Dose Not End With Number.")
+            return
+        }
         println(readyToCalcComponents.last())
 
         var frontNum: Double = readyToCalcComponents[0].toDouble()
-        var symbol:   String
+        var sign:   String
         var rearNum:  Double
 
         // 最後が記号で終わる式を弾かないとindex out of rangeが起きて世界が滅ぶ
         for(i in 0..readyToCalcComponents.size-2 step 2) {
-            symbol   = readyToCalcComponents[i + 1]
+            sign   = readyToCalcComponents[i + 1]
             rearNum  = readyToCalcComponents[i + 2].toDouble()
 
-            println("front: $frontNum sign: $symbol rear: $rearNum")
 
-            when(symbol) {
+            when(sign) {
                 "÷" -> frontNum /= rearNum
                 "×" -> frontNum *= rearNum
                 "-" -> frontNum -= rearNum
@@ -95,12 +106,16 @@ class MainActivity : AppCompatActivity() {
         val formulaArea = findViewById<TextView>(R.id.formula)
         formula = result
         formulaArea.text = formula
+
+        val errorArea = findViewById<TextView>(R.id.error)
+        errorArea.text = "The Formula Was Successfully Executed."
+        errorArea.setTextColor(Color.BLACK)
     }
 
     private fun backSpace() {
         if(formula == "0") return
 
-        formula = when(val last = formula.lastIndex) {
+        formula = when(formula.lastIndex) {
             0    -> "0"
             else -> formula.removeSuffix(formula.last().toString())
         }
@@ -110,7 +125,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPoint() {
-        if(!formula.last().isIntChar()) return
+        if(!formula.last().isIntChar()) {
+            showError("You Cannot Add Point To That.")
+            return
+        }
+
+        println(formula.reversed())
+
+        for(s in formula.reversed()) {
+            println(s)
+            if(s == '.') return
+            else if(!s.toString().isNumStr()) break
+        }
 
         val formulaArea = findViewById<TextView>(R.id.formula)
         formula += "."
@@ -132,11 +158,11 @@ class MainActivity : AppCompatActivity() {
         formulaArea.text = formula
     }
 
-    private fun addSymbol(inputtedSymbol: String) {
+    private fun addSign(inputtedSign: String) {
         if(!formula.last().isIntChar()) return
 
         val formulaArea = findViewById<TextView>(R.id.formula)
-        formula += inputtedSymbol
+        formula += inputtedSign
         formulaArea.text = formula
     }
 }
